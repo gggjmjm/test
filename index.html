@@ -1,151 +1,107 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>วงล้อสุ่มชื่อ</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@400;600;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ผู้เล่นออนไลน์ในเซิร์ฟเวอร์</title>
 <style>
-:root{--bg:#f3f6f1;--card:#fff;--ink:#1d2b2a;--mute:#5d6e6c;--line:#d5ddd8;--accent:#e4572e;--accent-ink:#fff;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a19;--card:#1b2625;--ink:#eef3f1;--mute:#9fb0ad;--line:#2f3d3b}}
-:root[data-theme="dark"]{--bg:#121a19;--card:#1b2625;--ink:#eef3f1;--mute:#9fb0ad;--line:#2f3d3b}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Thai Looped","Noto Sans Thai",Sarabun,system-ui,sans-serif;line-height:1.6}
-main{max-width:980px;margin:0 auto;padding:24px 16px 40px;display:grid;gap:24px;grid-template-columns:1fr}
-@media(min-width:820px){main{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start}}
-h1{grid-column:1/-1;margin:0;font-size:clamp(1.8rem,5vw,2.6rem);font-weight:800;letter-spacing:-.01em}
-.stage{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:1}
-canvas{width:100%;height:100%;display:block}
-.pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:34px solid var(--ink);filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));z-index:2}
-.hub{position:absolute;left:50%;top:50%;width:22%;height:22%;transform:translate(-50%,-50%);border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);font:800 clamp(1rem,3.4vw,1.4rem) inherit;font-family:inherit;cursor:pointer;box-shadow:0 0 0 6px var(--card),0 4px 12px rgba(0,0,0,.3)}
-.hub:disabled{opacity:.7;cursor:default}
-:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
-label{font-weight:600}
-textarea{width:100%;min-height:200px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg);color:var(--ink);font:inherit}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.chk{display:flex;gap:8px;align-items:center;font-weight:400;color:var(--mute)}
-button.sec{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
-.result{min-height:3.2em;font-size:1.1rem;color:var(--mute)}
-.result b{display:block;font-size:1.8rem;color:var(--ink);line-height:1.3;overflow-wrap:anywhere}
-.hint{font-size:.85rem;color:var(--mute);margin:0}
-.ov{position:fixed;inset:0;background:rgba(10,18,17,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
-.ov.on{display:flex}
-.pop{background:var(--card);color:var(--ink);border-radius:18px;padding:28px 24px;width:100%;max-width:380px;text-align:center;border-top:8px solid var(--accent);box-shadow:0 12px 40px rgba(0,0,0,.4);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
-.pop .em{font-size:3rem;line-height:1}
-.pop p{margin:8px 0 0;color:var(--mute)}
-.pop .w{font-size:clamp(1.8rem,8vw,2.4rem);font-weight:800;line-height:1.3;margin:6px 0 18px;overflow-wrap:anywhere}
-.pop .ok{border:0;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:10px 28px;font:600 1rem inherit;font-family:inherit;cursor:pointer}
-@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
-@media(prefers-reduced-motion:reduce){.pop{animation:none}}
+  :root {
+    --bg: #0f1220; --card: #1a1f36; --accent: #6ee7b7; --accent2: #60a5fa;
+    --text: #e5e7eb; --muted: #9ca3af;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: radial-gradient(circle at top, #1e2340, #0f1220 70%);
+    color: var(--text); font-family: "Segoe UI", Tahoma, sans-serif;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .card {
+    width: 100%; max-width: 480px; background: var(--card); border-radius: 16px;
+    padding: 28px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  h1 { margin: 0 0 4px; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+  .status-dot.online { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .status-dot.offline { background: #f87171; box-shadow: 0 0 8px #f87171; }
+  .count {
+    font-size: 42px; font-weight: 700;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin: 8px 0 4px;
+  }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+  li {
+    background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #0f1220; flex-shrink: 0;
+  }
+  .name { font-size: 14px; }
+  .tag { margin-left: auto; font-size: 11px; color: var(--muted); }
+  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 20px 0; }
+  .updated { margin-top: 16px; font-size: 12px; color: var(--muted); text-align: right; }
 </style>
 </head>
 <body>
-<main>
-<h1>วงล้อสุ่มชื่อ</h1>
-<section aria-label="วงล้อ">
-<div class="stage">
-<div class="pointer"></div>
-<canvas id="c" width="1040" height="1040" role="img" aria-label="วงล้อสุ่ม"></canvas>
-<button class="hub" id="spin">หมุน</button>
-</div>
-</section>
-<section class="panel">
-<label for="items">ตัวเลือก (บรรทัดละ 1 อัน)</label>
-<textarea id="items"></textarea>
-<div class="row">
-<label class="chk"><input type="checkbox" id="rm"> เอาผู้ถูกเลือกออกหลังหมุน</label>
-<button class="sec" id="shuffle" type="button">สลับลำดับ</button>
-</div>
-<div class="result" id="res" aria-live="polite">กด "หมุน" เพื่อสุ่ม</div>
-<p class="hint">ใส่ได้ 2–40 ตัวเลือก แก้ไขแล้ววงล้อจะอัปเดตทันที</p>
-</section>
-</main>
-<div class="ov" id="ov">
-<div class="pop" role="dialog" aria-modal="true" aria-labelledby="pw">
-<div class="em" aria-hidden="true">🎉</div>
-<p>ผู้ถูกเลือกคือ</p>
-<div class="w" id="pw"></div>
-<button class="ok" id="ok">ตกลง</button>
-</div>
-</div>
+  <div class="card">
+    <h1><span id="statusDot" class="status-dot"></span> ผู้เล่นออนไลน์</h1>
+    <div class="count" id="count">0</div>
+    <div class="sub">Xbox Gamertag ของผู้เล่นที่อยู่ในเซิร์ฟเวอร์ตอนนี้ · อัปเดตทุก 5 วิ</div>
+    <ul id="playerList"></ul>
+    <div class="updated" id="updated">ยังไม่มีข้อมูล</div>
+  </div>
+
 <script>
-(function(){
-var COLORS=["#e4572e","#f3a712","#29a587","#2e86de","#8e5bd1","#d6336c","#4c9f38","#0f7b8a"];
-var cv=document.getElementById("c"),ctx=cv.getContext("2d"),W=cv.width,R=W/2-12;
-var ta=document.getElementById("items"),btn=document.getElementById("spin"),res=document.getElementById("res"),rm=document.getElementById("rm");
-var items=[],theta=0,busy=false;
-ta.value=["ข้าวมันไก่","ผัดกะเพรา","ก๋วยเตี๋ยว","ส้มตำ","ข้าวผัด","สุกี้"].join("\n");
-function read(){items=ta.value.split("\n").map(function(s){return s.trim()}).filter(Boolean).slice(0,40);}
-function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
-function draw(){
-ctx.clearRect(0,0,W,W);
-var n=items.length;
-if(n<2){ctx.fillStyle=css("--mute");ctx.font="600 36px 'Noto Sans Thai Looped',sans-serif";ctx.textAlign="center";ctx.fillText("ใส่ตัวเลือกอย่างน้อย 2 อัน",W/2,W/2);return;}
-var a=2*Math.PI/n;
-ctx.save();ctx.translate(W/2,W/2);ctx.rotate(theta);
-for(var i=0;i<n;i++){
-ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,R,i*a,(i+1)*a);ctx.closePath();
-ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();
-ctx.strokeStyle="rgba(255,255,255,.85)";ctx.lineWidth=3;ctx.stroke();
-ctx.save();ctx.rotate(i*a+a/2);ctx.textAlign="right";ctx.textBaseline="middle";
-ctx.fillStyle="#fff";
-var fs=Math.max(18,Math.min(44,Math.floor(R*a*0.5)));
-ctx.font="800 "+fs+"px 'Noto Sans Thai Looped',sans-serif";
-var t=items[i];while(t.length>1&&ctx.measureText(t).width>R*0.62)t=t.slice(0,-1);
-if(t!==items[i])t+="…";
-ctx.shadowColor="rgba(0,0,0,.35)";ctx.shadowBlur=4;
-ctx.fillText(t,R-28,0);ctx.restore();
+// เปลี่ยนเป็น URL backend จริงของคุณ (ต้องตรงกับที่ตั้งไว้ใน addon)
+const API_URL = "https://test-five-nu-ek2m7k2r43.vercel.app/";
+
+const countEl = document.getElementById("count");
+const listEl = document.getElementById("playerList");
+const updatedEl = document.getElementById("updated");
+const dotEl = document.getElementById("statusDot");
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-ctx.restore();
-ctx.beginPath();ctx.arc(W/2,W/2,R,0,2*Math.PI);ctx.lineWidth=10;ctx.strokeStyle=css("--ink");ctx.stroke();
+
+async function refresh() {
+  try {
+    const res = await fetch(API_URL, { cache: "no-store", headers: { "ngrok-skip-browser-warning": "true" } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    countEl.textContent = data.count ?? 0;
+
+    if (Array.isArray(data.players) && data.players.length > 0) {
+      listEl.innerHTML = data.players.map(p => {
+        const name = typeof p === "string" ? p : p.name; // เผื่อ backend รุ่นเก่าส่งเป็น string ล้วน
+        const initial = escapeHtml(name).charAt(0).toUpperCase();
+        return `<li>
+          <div class="avatar">${initial}</div>
+          <div class="name">${escapeHtml(name)}</div>
+          <div class="tag">XBOX</div>
+        </li>`;
+      }).join("");
+    } else {
+      listEl.innerHTML = `<div class="empty">ไม่มีผู้เล่นออนไลน์</div>`;
+    }
+
+    dotEl.className = "status-dot online";
+    updatedEl.textContent = "อัปเดตล่าสุด: " + new Date().toLocaleTimeString("th-TH");
+  } catch (err) {
+    dotEl.className = "status-dot offline";
+    updatedEl.textContent = "เชื่อมต่อ backend ไม่ได้: " + err.message;
+  }
 }
-function winner(){
-var n=items.length,a=2*Math.PI/n,TWO=2*Math.PI;
-var phi=((-Math.PI/2-theta)%TWO+TWO)%TWO;
-return Math.min(n-1,Math.floor(phi/a));
-}
-function spin(){
-if(busy)return;read();
-if(items.length<2){draw();return;}
-busy=true;btn.disabled=true;
-var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-var dur=reduce?800:4800,start=theta,total=(reduce?1:5+Math.floor(Math.random()*3))*2*Math.PI+Math.random()*2*Math.PI;
-var t0=null;
-function step(ts){
-if(t0===null)t0=ts;
-var p=Math.min(1,(ts-t0)/dur),e=1-Math.pow(1-p,4);
-theta=start+total*e;draw();
-if(p<1){requestAnimationFrame(step)}else{done()}
-}
-requestAnimationFrame(step);
-}
-function done(){
-var i=winner(),name=items[i];
-res.innerHTML="ผู้ถูกเลือก<b></b>";res.querySelector("b").textContent=name;
-if(rm.checked){items.splice(i,1);ta.value=items.join("\n");draw();}
-busy=false;btn.disabled=false;
-document.getElementById("pw").textContent=name;
-ov.classList.add("on");okb.focus();
-}
-var ov=document.getElementById("ov"),okb=document.getElementById("ok");
-function closePop(){ov.classList.remove("on");btn.focus();}
-okb.addEventListener("click",closePop);
-ov.addEventListener("click",function(e){if(e.target===ov)closePop();});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ov.classList.contains("on"))closePop();});
-ta.addEventListener("input",function(){if(!busy){read();draw();}});
-btn.addEventListener("click",spin);
-document.getElementById("shuffle").addEventListener("click",function(){
-if(busy)return;read();
-for(var i=items.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=items[i];items[i]=items[j];items[j]=t;}
-ta.value=items.join("\n");draw();
-});
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",draw);
-read();draw();
-})();
+
+refresh();
+setInterval(refresh, 5000);
 </script>
 </body>
 </html>
