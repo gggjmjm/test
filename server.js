@@ -4,35 +4,40 @@ require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const AUTH_TOKEN = process.env.AUTH_TOKEN || "vSGm05Pzjn"; // ควรตั้งใน .env จริง ไม่ควร hardcode
+const AUTH_TOKEN = process.env.AUTH_TOKEN || "vSGm05Pzjn"; // แนะนำให้ตั้งใน .env แทนการ hardcode
 
 app.use(express.json());
-app.use(cors()); // เปิดให้เว็บ frontend เรียกข้าม origin ได้ (จำกัด origin เฉพาะได้ถ้าต้องการ)
+app.use(cors()); // ให้เว็บ frontend ดึงข้อมูลข้าม origin ได้ (ปรับให้ระบุ origin เฉพาะได้ถ้าต้องการความปลอดภัยเพิ่ม)
 
-let currentData = { count: 0, players: [], serverTime: null, updatedAt: null };
+let currentData = { count: 0, players: [], updatedAt: null };
 
-// กันสแปม/โจมตี
-const lastHit = new Map();
+// จำกัดจำนวนคำขอ กันสแปม/โจมตี
+const requestLog = new Map();
 function rateLimit(req, res, next) {
   const ip = req.ip;
   const now = Date.now();
-  if (now - (lastHit.get(ip) || 0) < 200) return res.status(429).send("Too Many Requests");
-  lastHit.set(ip, now);
+  const last = requestLog.get(ip) || 0;
+  if (now - last < 200) { // กันยิงถี่เกิน 5 ครั้ง/วินาทีต่อ IP
+    return res.status(429).send("Too Many Requests");
+  }
+  requestLog.set(ip, now);
   next();
 }
 
 app.post("/api/players", rateLimit, (req, res) => {
-  if (req.headers["auth"] !== AUTH_TOKEN) return res.status(403).send("Forbidden");
+  const token = req.headers["auth"];
+  if (token !== AUTH_TOKEN) return res.status(403).send("Forbidden");
 
   const { count, players } = req.body || {};
+
+  // ตรวจสอบข้อมูลก่อนบันทึก กันข้อมูลผิดรูปแบบทำให้ frontend พัง
   if (!Array.isArray(players) || typeof count !== "number") {
     return res.status(400).send("Bad Request: invalid payload");
   }
 
   currentData = {
     count,
-    players, // [{ name, xuid }]
-    serverTime: req.body.serverTime || null,
+    players,
     updatedAt: new Date().toISOString(),
   };
   res.sendStatus(200);
@@ -41,7 +46,5 @@ app.post("/api/players", rateLimit, (req, res) => {
 app.get("/api/players", (req, res) => {
   res.json(currentData);
 });
-
-app.get("/health", (req, res) => res.send("OK"));
 
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
