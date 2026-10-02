@@ -1,6 +1,6 @@
 const { kv } = require("@vercel/kv");
 
-const AUTH_TOKEN = "vSGm05Pzjn"; // ตั้งค่าใน Vercel Project Settings -> Environment Variables
+const AUTH_TOKEN = process.env.AUTH_TOKEN; // ตั้งค่าใน Vercel Project Settings -> Environment Variables
 const KV_KEY = "player_data";
 
 module.exports = async (req, res) => {
