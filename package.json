@@ -1,0 +1,9 @@
+{
+  "name": "minecraft-player-vercel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend (Vercel Serverless Functions) รับข้อมูลผู้เล่นจากแอดออน Minecraft Bedrock แล้วให้เว็บไซต์ดึงไปแสดง",
+  "dependencies": {
+    "@vercel/kv": "^2.0.0"
+  }
+}

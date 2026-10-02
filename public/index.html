@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ผู้เล่นออนไลน์ในเซิร์ฟเวอร์</title>
+<style>
+  :root {
+    --bg: #0f1220; --card: #1a1f36; --accent: #6ee7b7; --accent2: #60a5fa;
+    --text: #e5e7eb; --muted: #9ca3af;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: radial-gradient(circle at top, #1e2340, #0f1220 70%);
+    color: var(--text); font-family: "Segoe UI", Tahoma, sans-serif;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .card {
+    width: 100%; max-width: 480px; background: var(--card); border-radius: 16px;
+    padding: 28px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  h1 { margin: 0 0 4px; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+  .status-dot.online { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .status-dot.offline { background: #f87171; box-shadow: 0 0 8px #f87171; }
+  .count {
+    font-size: 42px; font-weight: 700;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin: 8px 0 4px;
+  }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+  li {
+    background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #0f1220; flex-shrink: 0;
+  }
+  .name { font-size: 14px; }
+  .tag { margin-left: auto; font-size: 11px; color: var(--muted); }
+  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 20px 0; }
+  .updated { margin-top: 16px; font-size: 12px; color: var(--muted); text-align: right; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1><span id="statusDot" class="status-dot"></span> ผู้เล่นออนไลน์</h1>
+    <div class="count" id="count">0</div>
+    <div class="sub">Xbox Gamertag ของผู้เล่นที่อยู่ในเซิร์ฟเวอร์ตอนนี้ · อัปเดตทุก 5 วิ</div>
+    <ul id="playerList"></ul>
+    <div class="updated" id="updated">ยังไม่มีข้อมูล</div>
+  </div>
+
+<script>
+// บน Vercel ไม่ต้องใส่ URL เต็ม ใช้ path สัมพัทธ์ได้เลย เพราะเว็บกับ API อยู่โดเมนเดียวกัน
+const API_URL = "/api/players";
+
+const countEl = document.getElementById("count");
+const listEl = document.getElementById("playerList");
+const updatedEl = document.getElementById("updated");
+const dotEl = document.getElementById("statusDot");
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+async function refresh() {
+  try {
+    const res = await fetch(API_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    countEl.textContent = data.count ?? 0;
+
+    if (Array.isArray(data.players) && data.players.length > 0) {
+      listEl.innerHTML = data.players.map(p => {
+        const name = typeof p === "string" ? p : p.name;
+        const initial = escapeHtml(name).charAt(0).toUpperCase();
+        return `<li>
+          <div class="avatar">${initial}</div>
+          <div class="name">${escapeHtml(name)}</div>
+          <div class="tag">XBOX</div>
+        </li>`;
+      }).join("");
+    } else {
+      listEl.innerHTML = `<div class="empty">ไม่มีผู้เล่นออนไลน์</div>`;
+    }
+
+    dotEl.className = "status-dot online";
+    updatedEl.textContent = "อัปเดตล่าสุด: " + new Date().toLocaleTimeString("th-TH");
+  } catch (err) {
+    dotEl.className = "status-dot offline";
+    updatedEl.textContent = "เชื่อมต่อ backend ไม่ได้: " + err.message;
+  }
+}
+
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>
