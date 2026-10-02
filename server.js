@@ -1,50 +1,49 @@
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
+const { kv } = require("@vercel/kv");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-const AUTH_TOKEN = process.env.AUTH_TOKEN || "vSGm05Pzjn"; // แนะนำให้ตั้งใน .env แทนการ hardcode
+const AUTH_TOKEN = process.env.AUTH_TOKEN; // ตั้งค่าใน Vercel Project Settings -> Environment Variables
+const KV_KEY = "player_data";
 
-app.use(express.json());
-app.use(cors()); // ให้เว็บ frontend ดึงข้อมูลข้าม origin ได้ (ปรับให้ระบุ origin เฉพาะได้ถ้าต้องการความปลอดภัยเพิ่ม)
+module.exports = async (req, res) => {
+  // อนุญาตให้เว็บ frontend เรียกข้าม origin ได้
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, auth");
 
-let currentData = { count: 0, players: [], updatedAt: null };
-
-// จำกัดจำนวนคำขอ กันสแปม/โจมตี
-const requestLog = new Map();
-function rateLimit(req, res, next) {
-  const ip = req.ip;
-  const now = Date.now();
-  const last = requestLog.get(ip) || 0;
-  if (now - last < 200) { // กันยิงถี่เกิน 5 ครั้ง/วินาทีต่อ IP
-    return res.status(429).send("Too Many Requests");
-  }
-  requestLog.set(ip, now);
-  next();
-}
-
-app.post("/api/players", rateLimit, (req, res) => {
-  const token = req.headers["auth"];
-  if (token !== AUTH_TOKEN) return res.status(403).send("Forbidden");
-
-  const { count, players } = req.body || {};
-
-  // ตรวจสอบข้อมูลก่อนบันทึก กันข้อมูลผิดรูปแบบทำให้ frontend พัง
-  if (!Array.isArray(players) || typeof count !== "number") {
-    return res.status(400).send("Bad Request: invalid payload");
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
   }
 
-  currentData = {
-    count,
-    players,
-    updatedAt: new Date().toISOString(),
-  };
-  res.sendStatus(200);
-});
+  if (req.method === "POST") {
+    const token = req.headers["auth"];
+    if (token !== AUTH_TOKEN) {
+      return res.status(403).send("Forbidden");
+    }
 
-app.get("/api/players", (req, res) => {
-  res.json(currentData);
-});
+    const { count, players } = req.body || {};
+    if (!Array.isArray(players) || typeof count !== "number") {
+      return res.status(400).send("Bad Request: invalid payload");
+    }
 
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+    const data = {
+      count,
+      players, // [{ name, xuid }]
+      serverTime: req.body.serverTime || null,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await kv.set(KV_KEY, data);
+    return res.status(200).send("OK");
+  }
+
+  if (req.method === "GET") {
+    const data = (await kv.get(KV_KEY)) || {
+      count: 0,
+      players: [],
+      serverTime: null,
+      updatedAt: null,
+    };
+    return res.status(200).json(data);
+  }
+
+  return res.status(405).send("Method Not Allowed");
+};
